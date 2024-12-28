@@ -1,12 +1,25 @@
+import os, sys
+os.system("pip install discord.py-self")
 import discord
 from discord.ext import commands
 import requests
 import json
 import config
+import colorama
+from colorama import Fore
 
 intents = discord.Intents.default()
-draxon = commands.Bot(command_prefix="!", intents=intents)
+draxon = commands.Bot(command_prefix="!", intents=intents, self_bot=True)
 
+@draxon.event
+async def on_ready():
+    os.system('cls' if os.name == 'nt' else 'clear')    
+    print(f"""{Fore.RESET}
+{Fore.CYAN}Logged In User's Account{Fore.RESET}
+{Fore.YELLOW}Username: {draxon.user.name}{Fore.RESET}
+{Fore.YELLOW}ID: {draxon.user.id}{Fore.RESET}
+""")
+    
 async def send_transaction(ctx, currency, addy, value):
     try:
         value = float(value.strip('$'))
@@ -87,6 +100,43 @@ async def send_transaction(ctx, currency, addy, value):
         await ctx.send(f"An error occurred: {str(e)}")
 
 # Commands
+
+@draxon.command(aliases=['h'])
+async def help(ctx):
+    embed = discord.Embed(
+        title="Draxon Wallet Help",
+        description="List of available commands",
+        color=discord.Color.dark_gray()
+    )
+    embed.add_field(
+        name="`!sendltc <address> <amount>`",
+        value="Send LTC to a specified address.",
+        inline=False
+    )
+    embed.add_field(
+        name="`!sendeth <address> <amount>`",
+        value="Send ETH to a specified address.",
+        inline=False
+    )
+    embed.add_field(
+        name="`!sendsol <address> <amount>`",
+        value="Send SOL to a specified address.",
+        inline=False
+    )
+    embed.add_field(
+        name="`!sendusdt <address> <amount>`",
+        value="Send USDT to a specified address.",
+        inline=False
+    )
+    embed.add_field(
+        name="`!help` or `!h`",
+        value="Show this help message.",
+        inline=False
+    )
+    embed.set_footer(text="Draxon Selfbot - Use responsibly")
+    
+    await ctx.send(embed=embed)
+
 @draxon.command(aliases=["pay", "sendltc"])
 async def sendltc(ctx, addy, value):
     await send_transaction(ctx, "ltc", addy, value)
